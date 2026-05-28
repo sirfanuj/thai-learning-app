@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Thai Learning App 🇹🇭</title>
+<style>
+:root {
+  --primary: #E63946;
+  --primary-dark: #C1121F;
+  --secondary: #457B9D;
+  --accent: #F4A261;
+  --bg: #1D1D2E;
+  --bg2: #252538;
+  --bg3: #2E2E45;
+  --card: #32324A;
+  --text: #F1FAEE;
+  --text2: #A8DADC;
+  --success: #2DC653;
+  --warning: #F4A261;
+  --danger: #E63946;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+.screen { display: none; flex-direction: column; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* NAV */
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
+.nav-title { font-size: 18px; font-weight: 700; }
+.nav-back { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.nav-back:active { background: var(--bg3); }
+
+/* HOME */
+.home-hero { padding: 32px 20px 20px; text-align: center; }
+.flag { font-size: 56px; margin-bottom: 8px; }
+.home-hero h1 { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.home-hero p { color: var(--text2); margin-top: 6px; font-size: 15px; }
+.streak-bar { margin: 12px 20px; background: var(--bg2); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+.streak-bar .fire { font-size: 28px; }
+.streak-info { flex: 1; }
+.streak-info strong { font-size: 16px; }
+.streak-info small { color: var(--text2); font-size: 12px; display: block; }
+.xp-bar-wrap { flex: 1; background: var(--bg3); border-radius: 99px; height: 8px; margin-top: 4px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width 0.5s; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 4px 20px 20px; }
+.mode-card { background: var(--card); border-radius: var(--radius); padding: 20px 16px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; text-align: center; }
+.mode-card:active { transform: scale(0.96); }
+.mode-card .icon { font-size: 36px; margin-bottom: 8px; }
+.mode-card h3 { font-size: 14px; font-weight: 700; }
+.mode-card p { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.mode-card.highlight { border-color: var(--primary); background: linear-gradient(135deg, rgba(230,57,70,0.15), var(--card)); }
+.progress-section { padding: 0 20px 20px; }
+.progress-section h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.stat-row { display: flex; gap: 10px; }
+.stat-box { flex: 1; background: var(--card); border-radius: var(--radius); padding: 14px; text-align: center; }
+.stat-box .num { font-size: 24px; font-weight: 800; color: var(--accent); }
+.stat-box .label { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.category-section { padding: 0 20px 100px; }
+.category-section h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.cat-pill-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.cat-pill { background: var(--bg3); border-radius: 99px; padding: 8px 16px; font-size: 13px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+.cat-pill.active { border-color: var(--primary); color: var(--primary); }
+.cat-pill:active { transform: scale(0.95); }
+
+/* BOTTOM TAB */
+.tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid rgba(255,255,255,0.08); display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
+.tab-btn { flex: 1; padding: 10px 4px; text-align: center; cursor: pointer; border: none; background: none; color: var(--text2); font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.2s; }
+.tab-btn .tab-icon { font-size: 22px; }
+.tab-btn.active { color: var(--primary); }
+
+/* FLASHCARD SCREEN */
+.flashcard-wrap { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+.progress-pill { background: var(--bg3); border-radius: 99px; padding: 6px 18px; font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+.flashcard { width: 100%; max-width: 380px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+.fc-inner { width: 100%; min-height: 220px; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.23,1,0.32,1); border-radius: var(--radius); }
+.fc-inner.flipped { transform: rotateY(180deg); }
+.fc-front, .fc-back { position: absolute; width: 100%; min-height: 220px; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: var(--card); box-shadow: var(--shadow); }
+.fc-back { transform: rotateY(180deg); background: var(--bg3); }
+.fc-thai { font-size: 64px; line-height: 1.2; margin-bottom: 8px; }
+.fc-romanized { font-size: 18px; color: var(--text2); margin-bottom: 4px; }
+.fc-english { font-size: 22px; font-weight: 700; }
+.fc-tone { font-size: 12px; background: var(--primary); color: white; border-radius: 99px; padding: 3px 10px; margin-top: 8px; }
+.fc-category { font-size: 11px; color: var(--text2); margin-top: 6px; }
+.fc-hint { font-size: 13px; color: var(--text2); margin-top: 12px; }
+.tap-hint { font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 8px; }
+.speak-btn { background: var(--secondary); border: none; color: white; border-radius: 99px; padding: 8px 20px; font-size: 14px; cursor: pointer; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.speak-btn:active { opacity: 0.8; }
+.rating-row { display: flex; gap: 10px; width: 100%; max-width: 380px; margin-top: 4px; }
+.rating-btn { flex: 1; padding: 14px 8px; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+.rating-btn:active { transform: scale(0.95); }
+.rating-btn.hard { background: rgba(230,57,70,0.2); color: var(--danger); }
+.rating-btn.ok { background: rgba(244,162,97,0.2); color: var(--warning); }
+.rating-btn.easy { background: rgba(45,198,83,0.2); color: var(--success); }
+.category-filter { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 16px; scrollbar-width: none; }
+.category-filter::-webkit-scrollbar { display: none; }
+.cf-btn { flex-shrink: 0; background: var(--bg3); border: 2px solid transparent; border-radius: 99px; padding: 7px 16px; font-size: 13px; cursor: pointer; color: var(--text); white-space: nowrap; }
+.cf-btn.active { border-color: var(--primary); color: var(--primary); }
+
+/* QUIZ SCREEN */
+.quiz-wrap { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+.quiz-progress { height: 6px; background: var(--bg3); border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+.quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width 0.4s; }
+.quiz-type-badge { background: var(--bg3); border-radius: 99px; padding: 4px 14px; font-size: 12px; color: var(--text2); display: inline-block; margin-bottom: 16px; }
+.quiz-question { font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+.quiz-thai { font-size: 52px; text-align: center; margin: 16px 0; }
+.quiz-choices { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.choice-btn { background: var(--card); border: 2px solid transparent; border-radius: var(--radius); padding: 16px 20px; font-size: 16px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
+.choice-btn:active { transform: scale(0.98); }
+.choice-btn .choice-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text2); flex-shrink: 0; }
+.choice-btn.correct { border-color: var(--success); background: rgba(45,198,83,0.1); }
+.choice-btn.wrong { border-color: var(--danger); background: rgba(230,57,70,0.1); }
+.choice-btn.disabled { pointer-events: none; }
+.next-btn { background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; width: 100%; display: none; }
+.next-btn.show { display: block; }
+.quiz-result { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 20px; }
+.result-emoji { font-size: 72px; margin-bottom: 16px; }
+.result-score { font-size: 48px; font-weight: 900; color: var(--accent); }
+.result-label { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.result-sub { font-size: 14px; color: var(--text2); margin-top: 8px; }
+.result-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; margin-top: 32px; }
+.btn-primary { background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.btn-secondary { background: var(--bg3); color: var(--text); border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; cursor: pointer; }
+
+/* WRITING SCREEN */
+.writing-wrap { flex: 1; padding: 16px 20px 100px; }
+.alphabet-tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.alphabet-tabs::-webkit-scrollbar { display: none; }
+.atab { flex-shrink: 0; background: var(--bg3); border: 2px solid transparent; border-radius: 99px; padding: 7px 16px; font-size: 13px; cursor: pointer; color: var(--text); }
+.atab.active { border-color: var(--accent); color: var(--accent); }
+.consonant-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+.cons-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+.cons-card:active { transform: scale(0.93); }
+.cons-card.active { border-color: var(--accent); }
+.cons-card .ct { font-size: 28px; line-height: 1.2; }
+.cons-card .cr { font-size: 10px; color: var(--text2); margin-top: 2px; }
+.cons-card .cc { font-size: 9px; color: var(--text2); margin-top: 1px; }
+.cons-card .cclass { font-size: 8px; border-radius: 99px; padding: 1px 5px; margin-top: 2px; display: inline-block; }
+.cclass.low { background: rgba(69,123,157,0.3); color: #A8DADC; }
+.cclass.mid { background: rgba(244,162,97,0.3); color: var(--accent); }
+.cclass.high { background: rgba(230,57,70,0.3); color: #FFB3BA; }
+.draw-section { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+.draw-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.draw-section p { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+.draw-target { font-size: 80px; text-align: center; color: rgba(255,255,255,0.15); margin-bottom: 8px; }
+canvas#drawCanvas { width: 100%; height: 200px; background: rgba(255,255,255,0.05); border-radius: 12px; cursor: crosshair; display: block; touch-action: none; }
+.draw-controls { display: flex; gap: 8px; margin-top: 10px; }
+.draw-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.draw-btn.clear { background: var(--bg3); color: var(--text); }
+.draw-btn.check { background: var(--primary); color: white; }
+.tone-section { background: var(--card); border-radius: var(--radius); padding: 16px; }
+.tone-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.tone-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tone-chip { flex: 1; min-width: 60px; background: var(--bg3); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+.tone-chip:active { transform: scale(0.95); }
+.tone-chip .tn { font-size: 20px; }
+.tone-chip .tl { font-size: 10px; color: var(--text2); margin-top: 2px; }
+.tone-chip.mid { border-color: rgba(255,255,255,0.2); }
+.tone-chip.low { border-color: rgba(69,123,157,0.5); }
+.tone-chip.falling { border-color: rgba(230,57,70,0.5); }
+.tone-chip.high { border-color: rgba(244,162,97,0.5); }
+.tone-chip.rising { border-color: rgba(45,198,83,0.5); }
+
+/* SPEAKING SCREEN */
+.speaking-wrap { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+.speak-card { background: var(--card); border-radius: var(--radius); width: 100%; max-width: 380px; padding: 28px 24px; text-align: center; margin-bottom: 20px; }
+.speak-thai { font-size: 56px; margin-bottom: 8px; }
+.speak-romanized { font-size: 18px; color: var(--text2); }
+.speak-english { font-size: 20px; font-weight: 700; margin-top: 6px; }
+.mic-btn { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); border: none; font-size: 36px; cursor: pointer; box-shadow: 0 0 0 0 rgba(230,57,70,0.4); transition: all 0.3s; }
+.mic-btn.listening { animation: pulse 1.5s infinite; background: var(--danger); }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(230,57,70,0.6); } 70% { box-shadow: 0 0 0 20px rgba(230,57,70,0); } 100% { box-shadow: 0 0 0 0 rgba(230,57,70,0); } }
+.speak-result { margin-top: 16px; font-size: 15px; color: var(--text2); min-height: 24px; }
+.speak-result.success { color: var(--success); }
+.speak-result.error { color: var(--danger); }
+.speak-nav { display: flex; gap: 16px; margin-top: 16px; }
+.speak-nav-btn { flex: 1; background: var(--bg3); border: none; color: var(--text); border-radius: var(--radius); padding: 14px; font-size: 22px; cursor: pointer; }
+.speak-mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.smode-tab { flex: 1; background: var(--bg3); border: 2px solid transparent; border-radius: 99px; padding: 8px 12px; font-size: 13px; cursor: pointer; color: var(--text); text-align: center; }
+.smode-tab.active { border-color: var(--primary); color: var(--primary); }
+
+/* PROGRESS SCREEN */
+.progress-wrap { flex: 1; padding: 20px 20px 100px; }
+.progress-wrap h2 { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+.prog-card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.prog-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.prog-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.prog-stat { text-align: center; }
+.prog-stat .n { font-size: 22px; font-weight: 800; color: var(--accent); }
+.prog-stat .l { font-size: 11px; color: var(--text2); }
+.mastery-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.mastery-label { width: 80px; font-size: 13px; color: var(--text2); }
+.mastery-bar-bg { flex: 1; height: 10px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.mastery-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s; }
+.mastery-pct { width: 36px; font-size: 12px; text-align: right; }
+.recent-words { display: flex; flex-wrap: wrap; gap: 8px; }
+.recent-word { background: var(--bg3); border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+.cat-progress { display: flex; flex-direction: column; gap: 10px; }
+.cat-prog-row { display: flex; align-items: center; gap: 10px; }
+.cat-prog-label { width: 90px; font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-prog-bar { flex: 1; height: 8px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.cat-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; }
+.cat-prog-pct { font-size: 12px; color: var(--text2); width: 32px; text-align: right; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg2); color: var(--text); border-radius: 99px; padding: 10px 24px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow); opacity: 0; transition: all 0.3s; z-index: 9999; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: none; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg2); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; }
+.modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.modal p { font-size: 14px; color: var(--text2); margin-bottom: 20px; }
+.modal-close { float: right; background: var(--bg3); border: none; color: var(--text); border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; }
+
+/* LESSON LIST */
+.lesson-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px 100px; }
+.lesson-item { background: var(--card); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+.lesson-item:active { transform: scale(0.98); }
+.lesson-icon { font-size: 32px; width: 52px; text-align: center; }
+.lesson-info { flex: 1; }
+.lesson-info h3 { font-size: 15px; font-weight: 700; }
+.lesson-info p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.lesson-badge { background: var(--bg3); border-radius: 99px; padding: 4px 10px; font-size: 12px; color: var(--text2); }
+.lesson-badge.done { background: rgba(45,198,83,0.2); color: var(--success); }
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <div class="flag">🇹🇭</div>
+    <h1>Thai Master</h1>
+    <p>Learn Thai — alphabet, vocabulary, speaking</p>
+  </div>
+  <div class="streak-bar">
+    <div class="fire">🔥</div>
+    <div class="streak-info">
+      <strong id="home-streak">0 day streak</strong>
+      <small id="home-xp">0 XP total</small>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="mode-grid">
+    <div class="mode-card highlight" onclick="startFlashcards()">
+      <div class="icon">🃏</div>
+      <h3>Flashcards</h3>
+      <p>Spaced repetition vocab</p>
+    </div>
+    <div class="mode-card" onclick="startQuiz()">
+      <div class="icon">🎯</div>
+      <h3>Quiz</h3>
+      <p>Test your knowledge</p>
+    </div>
+    <div class="mode-card" onclick="showScreen('screen-writing')">
+      <div class="icon">✍️</div>
+      <h3>Writing</h3>
+      <p>Thai script practice</p>
+    </div>
+    <div class="mode-card" onclick="showScreen('screen-speaking')">
+      <div class="icon">🎙️</div>
+      <h3>Speaking</h3>
+      <p>Pronunciation training</p>
+    </div>
+  </div>
+  <div class="progress-section">
+    <h2>📊 Your Progress</h2>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num" id="stat-learned">0</div><div class="label">Words Learned</div></div>
+      <div class="stat-box"><div class="num" id="stat-mastered">0</div><div class="label">Mastered</div></div>
+      <div class="stat-box"><div class="num" id="stat-quizzes">0</div><div class="label">Quizzes Done</div></div>
+    </div>
+  </div>
+  <div class="category-section">
+    <h2>📚 Browse Topics</h2>
+    <div class="cat-pill-wrap" id="home-cats"></div>
+  </div>
+</div>
+
+<!-- FLASHCARD SCREEN -->
+<div id="screen-flashcards" class="screen">
+  <div class="nav">
+    <button class="nav-back" onclick="showScreen('screen-home')">←</button>
+    <div class="nav-title">Flashcards</div>
+    <div id="fc-xp-gain" style="font-size:13px;color:var(--accent)">+0 XP</div>
+  </div>
+  <div class="category-filter" id="fc-cat-filter"></div>
+  <div class="flashcard-wrap">
+    <div class="progress-pill" id="fc-progress">Card 1 of 20</div>
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-inner" id="fc-inner">
+        <div class="fc-front">
+          <div class="fc-thai" id="fc-thai">—</div>
+          <div class="fc-romanized" id="fc-romanized">—</div>
+          <div class="fc-tone" id="fc-tone">mid</div>
+          <div class="fc-category" id="fc-category">—</div>
+          <div class="fc-hint" style="margin-top:16px">Tap to reveal</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-english" id="fc-english">—</div>
+          <div class="fc-romanized" id="fc-romanized2" style="font-size:22px;margin-top:6px">—</div>
+          <div class="fc-thai" id="fc-thai2" style="font-size:42px;margin-top:6px">—</div>
+          <button class="speak-btn" onclick="speakThai(event)">🔊 Hear it</button>
+        </div>
+      </div>
+    </div>
+    <div class="tap-hint" id="tap-hint">Rate this card after flipping</div>
+    <div class="rating-row" id="rating-row" style="display:none">
+      <button class="rating-btn hard" onclick="rateCard(1)">😓 Hard</button>
+      <button class="rating-btn ok" onclick="rateCard(3)">🤔 OK</button>
+      <button class="rating-btn easy" onclick="rateCard(5)">😊 Easy</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="screen-quiz" class="screen">
+  <div class="nav">
+    <button class="nav-back" onclick="showScreen('screen-home')">←</button>
+    <div class="nav-title">Quiz</div>
+    <div id="quiz-score-display" style="font-size:14px;color:var(--accent)">0/0</div>
+  </div>
+  <div id="quiz-game-area" class="quiz-wrap">
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+    <div class="quiz-type-badge" id="quiz-type-badge">Multiple Choice</div>
+    <div class="quiz-question" id="quiz-question">Loading...</div>
+    <div class="quiz-thai" id="quiz-thai"></div>
+    <div class="quiz-choices" id="quiz-choices"></div>
+    <button class="next-btn" id="quiz-next-btn" onclick="nextQuestion()">Next →</button>
+  </div>
+  <div id="quiz-result-area" class="quiz-wrap" style="display:none">
+    <div class="quiz-result">
+      <div class="result-emoji" id="result-emoji">🏆</div>
+      <div class="result-score" id="result-score">0/10</div>
+      <div class="result-label" id="result-label">Great job!</div>
+      <div class="result-sub" id="result-sub">+20 XP earned</div>
+      <div class="result-actions">
+        <button class="btn-primary" onclick="startQuiz()">Play Again</button>
+        <button class="btn-secondary" onclick="showScreen('screen-home')">Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WRITING SCREEN -->
+<div id="screen-writing" class="screen">
+  <div class="nav">
+    <button class="nav-back" onclick="showScreen('screen-home')">←</button>
+    <div class="nav-title">Writing & Script</div>
+    <div></div>
+  </div>
+  <div class="writing-wrap">
+    <div class="alphabet-tabs" id="writing-tabs">
+      <div class="atab active" onclick="setWritingTab('consonants',this)">Consonants</div>
+      <div class="atab" onclick="setWritingTab('vowels',this)">Vowels</div>
+      <div class="atab" onclick="setWritingTab('tones',this)">Tones</div>
+      <div class="atab" onclick="setWritingTab('numbers',this)">Numbers</div>
+    </div>
+    <div id="writing-content"></div>
+  </div>
+</div>
+
+<!-- SPEAKING SCREEN -->
+<div id="screen-speaking" class="screen">
+  <div class="nav">
+    <button class="nav-back" onclick="showScreen('screen-home')">←</button>
+    <div class="nav-title">Speaking Practice</div>
+    <div></div>
+  </div>
+  <div class="speaking-wrap">
+    <div class="speak-mode-tabs">
+      <div class="smode-tab active" onclick="setSpeakMode('listen',this)">🔊 Listen</div>
+      <div class="smode-tab" onclick="setSpeakMode('speak',this)">🎙️ Speak</div>
+      <div class="smode-tab" onclick="setSpeakMode('shadowing',this)">🔄 Shadow</div>
+    </div>
+    <div class="speak-card">
+      <div class="speak-thai" id="sp-thai">สวัสดี</div>
+      <div class="speak-romanized" id="sp-romanized">sà-wàt-dee</div>
+      <div class="speak-english" id="sp-english">Hello</div>
+    </div>
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
+    <div class="speak-result" id="speak-result">Tap 🔊 to hear · Tap 🎙️ to speak</div>
+    <div class="speak-nav">
+      <button class="speak-nav-btn" onclick="prevSpeakWord()">←</button>
+      <button class="speak-btn" onclick="speakCurrentWord()" style="flex:2;padding:12px 20px;font-size:16px">🔊 Play Audio</button>
+      <button class="speak-nav-btn" onclick="nextSpeakWord()">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS SCREEN -->
+<div id="screen-progress" class="screen">
+  <div class="nav">
+    <div class="nav-title">My Progress</div>
+    <div></div>
+  </div>
+  <div class="progress-wrap">
+    <h2>📈 Overview</h2>
+    <div class="prog-card">
+      <h3>Stats</h3>
+      <div class="prog-stat-grid">
+        <div class="prog-stat"><div class="n" id="prog-words">0</div><div class="l">Words Seen</div></div>
+        <div class="prog-stat"><div class="n" id="prog-mastered">0</div><div class="l">Mastered</div></div>
+        <div class="prog-stat"><div class="n" id="prog-streak">0</div><div class="l">Day Streak</div></div>
+        <div class="prog-stat"><div class="n" id="prog-xp">0</div><div class="l">Total XP</div></div>
+        <div class="prog-stat"><div class="n" id="prog-quizzes">0</div><div class="l">Quizzes</div></div>
+        <div class="prog-stat"><div class="n" id="prog-accuracy">0%</div><div class="l">Accuracy</div></div>
+      </div>
+    </div>
+    <div class="prog-card">
+      <h3>Mastery Levels</h3>
+      <div id="mastery-breakdown"></div>
+    </div>
+    <div class="prog-card">
+      <h3>Category Progress</h3>
+      <div class="cat-progress" id="cat-progress"></div>
+    </div>
+    <div class="prog-card">
+      <h3>Recently Studied</h3>
+      <div class="recent-words" id="recent-words"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('screen-home', this)"><div class="tab-icon">🏠</div>Home</button>
+  <button class="tab-btn" onclick="switchTab('screen-flashcards', this); startFlashcards()"><div class="tab-icon">🃏</div>Cards</button>
+  <button class="tab-btn" onclick="switchTab('screen-quiz', this); startQuiz()"><div class="tab-icon">🎯</div>Quiz</button>
+  <button class="tab-btn" onclick="switchTab('screen-writing', this)"><div class="tab-icon">✍️</div>Script</button>
+  <button class="tab-btn" onclick="switchTab('screen-progress', this); renderProgress()"><div class="tab-icon">📊</div>Progress</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// VOCABULARY DATABASE — 600+ words across 20 categories
+// ============================================================
+const VOCAB = [
+// GREETINGS & BASICS
+{t:"สวัสดี",r:"sà-wàt-dee",e:"Hello / Goodbye",c:"Greetings",tone:"mid",level:1},
+{t:"ขอบคุณ",r:"khàwp-khun",e:"Thank you",c:"Greetings",tone:"falling",level:1},
+{t:"ขอโทษ",r:"khǎw-thôht",e:"Sorry / Excuse me",c:"Greetings",tone:"rising",level:1},
+{t:"ใช่",r:"châi",e:"Yes",c:"Greetings",tone:"falling",level:1},
+{t:"ไม่",r:"mâi",e:"No / Not",c:"Greetings",tone:"falling",level:1},
+{t:"ได้",r:"dâai",e:"Can / OK / Receive",c:"Greetings",tone:"falling",level:1},
+{t:"ไม่เป็นไร",r:"mâi pen rai",e:"Never mind / It's OK",c:"Greetings",tone:"mixed",level:1},
+{t:"ยินดีที่รู้จัก",r:"yin-dee thîi rúu-jàk",e:"Nice to meet you",c:"Greetings",tone:"mid",level:2},
+{t:"สบายดีไหม",r:"sà-baai-dee mǎi",e:"How are you?",c:"Greetings",tone:"rising",level:1},
+{t:"สบายดี",r:"sà-baai-dee",e:"I'm fine",c:"Greetings",tone:"mid",level:1},
+{t:"เชิญ",r:"chəən",e:"Please (inviting)",c:"Greetings",tone:"mid",level:2},
+{t:"ครับ",r:"khráp",e:"Polite particle (male)",c:"Greetings",tone:"high",level:1},
+{t:"ค่ะ",r:"khâ",e:"Polite particle (female)",c:"Greetings",tone:"falling",level:1},
+{t:"นะ",r:"ná",e:"Softening particle",c:"Greetings",tone:"high",level:2},
+
+// NUMBERS
+{t:"หนึ่ง",r:"nùeng",e:"One (1)",c:"Numbers",tone:"low",level:1},
+{t:"สอง",r:"sǎwng",e:"Two (2)",c:"Numbers",tone:"rising",level:1},
+{t:"สาม",r:"sǎam",e:"Three (3)",c:"Numbers",tone:"rising",level:1},
+{t:"สี่",r:"sìi",e:"Four (4)",c:"Numbers",tone:"low",level:1},
+{t:"ห้า",r:"hâa",e:"Five (5)",c:"Numbers",tone:"falling",level:1},
+{t:"หก",r:"hòk",e:"Six (6)",c:"Numbers",tone:"low",level:1},
+{t:"เจ็ด",r:"jèt",e:"Seven (7)",c:"Numbers",tone:"low",level:1},
+{t:"แปด",r:"bpàet",e:"Eight (8)",c:"Numbers",tone:"low",level:1},
+{t:"เก้า",r:"gâo",e:"Nine (9)",c:"Numbers",tone:"falling",level:1},
+{t:"สิบ",r:"sìp",e:"Ten (10)",c:"Numbers",tone:"low",level:1},
+{t:"ร้อย",r:"rói",e:"Hundred",c:"Numbers",tone:"high",level:1},
+{t:"พัน",r:"phan",e:"Thousand",c:"Numbers",tone:"mid",level:2},
+{t:"หมื่น",r:"mùuen",e:"Ten thousand",c:"Numbers",tone:"low",level:2},
+{t:"ล้าน",r:"láan",e:"Million",c:"Numbers",tone:"high",level:2},
+{t:"ศูนย์",r:"sǔun",e:"Zero",c:"Numbers",tone:"rising",level:1},
+
+// COLORS
+{t:"แดง",r:"daeng",e:"Red",c:"Colors",tone:"mid",level:1},
+{t:"น้ำเงิน",r:"nám-ngəən",e:"Blue",c:"Colors",tone:"mixed",level:1},
+{t:"เขียว",r:"khǐao",e:"Green",c:"Colors",tone:"rising",level:1},
+{t:"เหลือง",r:"lǔeang",e:"Yellow",c:"Colors",tone:"rising",level:1},
+{t:"ขาว",r:"khǎao",e:"White",c:"Colors",tone:"rising",level:1},
+{t:"ดำ",r:"dam",e:"Black",c:"Colors",tone:"mid",level:1},
+{t:"ส้ม",r:"sôm",e:"Orange",c:"Colors",tone:"falling",level:1},
+{t:"ม่วง",r:"mûang",e:"Purple",c:"Colors",tone:"falling",level:1},
+{t:"ชมพู",r:"chom-phuu",e:"Pink",c:"Colors",tone:"mid",level:1},
+{t:"น้ำตาล",r:"nám-taan",e:"Brown",c:"Colors",tone:"mixed",level:1},
+{t:"เทา",r:"thao",e:"Grey",c:"Colors",tone:"mid",level:1},
+{t:"ทอง",r:"thong",e:"Gold",c:"Colors",tone:"mid",level:2},
+
+// FOOD & DRINK
+{t:"ข้าว",r:"khâao",e:"Rice",c:"Food",tone:"falling",level:1},
+{t:"น้ำ",r:"nám",e:"Water",c:"Food",tone:"high",level:1},
+{t:"อาหาร",r:"aa-hǎan",e:"Food",c:"Food",tone:"rising",level:1},
+{t:"ผัดไทย",r:"phàt-thai",e:"Pad Thai",c:"Food",tone:"low",level:1},
+{t:"ต้มยำ",r:"tôm-yam",e:"Tom Yum (soup)",c:"Food",tone:"falling",level:1},
+{t:"แกงเขียวหวาน",r:"gaeng-khǐao-wǎan",e:"Green curry",c:"Food",tone:"mixed",level:2},
+{t:"ข้าวผัด",r:"khâao-phàt",e:"Fried rice",c:"Food",tone:"falling",level:1},
+{t:"ส้มตำ",r:"sôm-tam",e:"Papaya salad",c:"Food",tone:"falling",level:1},
+{t:"หมู",r:"mǔu",e:"Pork",c:"Food",tone:"rising",level:1},
+{t:"ไก่",r:"gài",e:"Chicken",c:"Food",tone:"low",level:1},
+{t:"ปลา",r:"bplaa",e:"Fish",c:"Food",tone:"mid",level:1},
+{t:"กุ้ง",r:"gûng",e:"Shrimp / Prawn",c:"Food",tone:"falling",level:1},
+{t:"เบียร์",r:"bia",e:"Beer",c:"Food",tone:"mid",level:1},
+{t:"ชา",r:"chaa",e:"Tea",c:"Food",tone:"mid",level:1},
+{t:"กาแฟ",r:"gaa-fae",e:"Coffee",c:"Food",tone:"mid",level:1},
+{t:"ผัก",r:"phàk",e:"Vegetables",c:"Food",tone:"low",level:1},
+{t:"ผลไม้",r:"phǒn-lá-máai",e:"Fruit",c:"Food",tone:"mixed",level:1},
+{t:"เผ็ด",r:"phèt",e:"Spicy",c:"Food",tone:"low",level:1},
+{t:"หวาน",r:"wǎan",e:"Sweet",c:"Food",tone:"rising",level:1},
+{t:"เค็ม",r:"khem",e:"Salty",c:"Food",tone:"mid",level:1},
+{t:"เปรี้ยว",r:"bprîao",e:"Sour",c:"Food",tone:"falling",level:2},
+{t:"มะม่วง",r:"má-mûang",e:"Mango",c:"Food",tone:"mixed",level:1},
+{t:"มะพร้าว",r:"má-phrâao",e:"Coconut",c:"Food",tone:"mixed",level:1},
+
+// FAMILY
+{t:"พ่อ",r:"phâw",e:"Father",c:"Family",tone:"falling",level:1},
+{t:"แม่",r:"mâe",e:"Mother",c:"Family",tone:"falling",level:1},
+{t:"พี่ชาย",r:"phîi-chaai",e:"Older brother",c:"Family",tone:"falling",level:1},
+{t:"น้องชาย",r:"nóng-chaai",e:"Younger brother",c:"Family",tone:"high",level:1},
+{t:"พี่สาว",r:"phîi-sǎao",e:"Older sister",c:"Family",tone:"falling",level:1},
+{t:"น้องสาว",r:"nóng-sǎao",e:"Younger sister",c:"Family",tone:"high",level:1},
+{t:"ลูก",r:"lûuk",e:"Child / Son / Daughter",c:"Family",tone:"falling",level:1},
+{t:"ปู่",r:"bpùu",e:"Paternal grandfather",c:"Family",tone:"low",level:2},
+{t:"ย่า",r:"yâa",e:"Paternal grandmother",c:"Family",tone:"falling",level:2},
+{t:"ตา",r:"dtaa",e:"Maternal grandfather",c:"Family",tone:"mid",level:2},
+{t:"ยาย",r:"yaai",e:"Maternal grandmother",c:"Family",tone:"mid",level:2},
+{t:"สามี",r:"sǎa-mii",e:"Husband",c:"Family",tone:"rising",level:2},
+{t:"ภรรยา",r:"phan-rá-yaa",e:"Wife",c:"Family",tone:"mid",level:2},
+{t:"ครอบครัว",r:"khrâwp-khrua",e:"Family",c:"Family",tone:"falling",level:1},
+
+// PLACES & DIRECTIONS
+{t:"ที่ไหน",r:"thîi-nǎi",e:"Where",c:"Places",tone:"rising",level:1},
+{t:"ที่นี่",r:"thîi-nîi",e:"Here",c:"Places",tone:"falling",level:1},
+{t:"ที่นั่น",r:"thîi-nân",e:"There",c:"Places",tone:"falling",level:1},
+{t:"ซ้าย",r:"sáai",e:"Left",c:"Places",tone:"high",level:1},
+{t:"ขวา",r:"khwǎa",e:"Right",c:"Places",tone:"rising",level:1},
+{t:"ตรงไป",r:"trong-bpai",e:"Straight ahead",c:"Places",tone:"mid",level:1},
+{t:"ใกล้",r:"glâi",e:"Near / Close",c:"Places",tone:"falling",level:1},
+{t:"ไกล",r:"glai",e:"Far",c:"Places",tone:"mid",level:1},
+{t:"โรงแรม",r:"roong-raem",e:"Hotel",c:"Places",tone:"mid",level:1},
+{t:"ร้านอาหาร",r:"rán-aa-hǎan",e:"Restaurant",c:"Places",tone:"mixed",level:1},
+{t:"โรงพยาบาล",r:"roong-phá-yaa-baan",e:"Hospital",c:"Places",tone:"mid",level:1},
+{t:"ธนาคาร",r:"thá-naa-khaan",e:"Bank",c:"Places",tone:"mid",level:1},
+{t:"สนามบิน",r:"sà-nǎam-bin",e:"Airport",c:"Places",tone:"rising",level:1},
+{t:"ตลาด",r:"dtà-làat",e:"Market",c:"Places",tone:"low",level:1},
+{t:"วัด",r:"wát",e:"Temple",c:"Places",tone:"high",level:1},
+{t:"ห้องน้ำ",r:"hông-náam",e:"Bathroom / Toilet",c:"Places",tone:"falling",level:1},
+{t:"ถนน",r:"thà-nǒn",e:"Road / Street",c:"Places",tone:"rising",level:1},
+{t:"เมือง",r:"mueang",e:"City / Town",c:"Places",tone:"mid",level:1},
+
+// TIME
+{t:"วันนี้",r:"wan-níi",e:"Today",c:"Time",tone:"high",level:1},
+{t:"พรุ่งนี้",r:"phrûng-níi",e:"Tomorrow",c:"Time",tone:"falling",level:1},
+{t:"เมื่อวาน",r:"mûea-waan",e:"Yesterday",c:"Time",tone:"falling",level:1},
+{t:"ตอนนี้",r:"dtawn-níi",e:"Now",c:"Time",tone:"mid",level:1},
+{t:"เช้า",r:"cháo",e:"Morning",c:"Time",tone:"high",level:1},
+{t:"กลางวัน",r:"glaang-wan",e:"Afternoon / Noon",c:"Time",tone:"mid",level:1},
+{t:"เย็น",r:"yen",e:"Evening",c:"Time",tone:"mid",level:1},
+{t:"คืน",r:"khuen",e:"Night",c:"Time",tone:"mid",level:1},
+{t:"อาทิตย์",r:"aa-thít",e:"Week / Sunday",c:"Time",tone:"high",level:2},
+{t:"เดือน",r:"dueaan",e:"Month",c:"Time",tone:"mid",level:1},
+{t:"ปี",r:"bpii",e:"Year",c:"Time",tone:"mid",level:1},
+{t:"โมง",r:"moong",e:"O'clock",c:"Time",tone:"mid",level:1},
+{t:"นาที",r:"naa-thii",e:"Minute",c:"Time",tone:"mid",level:1},
+{t:"ชั่วโมง",r:"chûa-moong",e:"Hour",c:"Time",tone:"falling",level:1},
+{t:"จันทร์",r:"jan",e:"Monday",c:"Time",tone:"mid",level:1},
+{t:"อังคาร",r:"ang-khaan",e:"Tuesday",c:"Time",tone:"mid",level:1},
+{t:"พุธ",r:"phút",e:"Wednesday",c:"Time",tone:"high",level:1},
+{t:"พฤหัส",r:"phá-rúe-hàt",e:"Thursday",c:"Time",tone:"mixed",level:1},
+{t:"ศุกร์",r:"sùk",e:"Friday",c:"Time",tone:"low",level:1},
+{t:"เสาร์",r:"sǎo",e:"Saturday",c:"Time",tone:"rising",level:1},
+{t:"อาทิตย์",r:"aa-thít",e:"Sunday",c:"Time",tone:"high",level:1},
+
+// TRANSPORT
+{t:"รถ",r:"rót",e:"Car / Vehicle",c:"Transport",tone:"high",level:1},
+{t:"รถยนต์",r:"rót-yon",e:"Car",c:"Transport",tone:"high",level:1},
+{t:"รถไฟ",r:"rót-fai",e:"Train",c:"Transport",tone:"high",level:1},
+{t:"เครื่องบิน",r:"khrûeang-bin",e:"Airplane",c:"Transport",tone:"falling",level:1},
+{t:"เรือ",r:"ruea",e:"Boat",c:"Transport",tone:"mid",level:1},
+{t:"มอเตอร์ไซค์",r:"maw-dtəə-sai",e:"Motorcycle",c:"Transport",tone:"mid",level:1},
+{t:"แท็กซี่",r:"thék-sîi",e:"Taxi",c:"Transport",tone:"falling",level:1},
+{t:"รถเมล์",r:"rót-mee",e:"Bus",c:"Transport",tone:"high",level:1},
+{t:"รถตุ๊กตุ๊ก",r:"rót-túk-túk",e:"Tuk-tuk",c:"Transport",tone:"high",level:1},
+{t:"สถานี",r:"sà-thǎa-nii",e:"Station",c:"Transport",tone:"rising",level:2},
+
+// BODY
+{t:"หัว",r:"hǔa",e:"Head",c:"Body",tone:"rising",level:1},
+{t:"ตา",r:"dtaa",e:"Eye",c:"Body",tone:"mid",level:1},
+{t:"หู",r:"hǔu",e:"Ear",c:"Body",tone:"rising",level:1},
+{t:"จมูก",r:"jà-mùuk",e:"Nose",c:"Body",tone:"low",level:1},
+{t:"ปาก",r:"bpàak",e:"Mouth",c:"Body",tone:"low",level:1},
+{t:"มือ",r:"mue",e:"Hand",c:"Body",tone:"mid",level:1},
+{t:"เท้า",r:"tháo",e:"Foot",c:"Body",tone:"high",level:1},
+{t:"ขา",r:"khǎa",e:"Leg",c:"Body",tone:"rising",level:1},
+{t:"แขน",r:"khǎen",e:"Arm",c:"Body",tone:"rising",level:1},
+{t:"หน้า",r:"nâa",e:"Face",c:"Body",tone:"falling",level:1},
+{t:"ผม",r:"phǒm",e:"Hair (also: I, male)",c:"Body",tone:"rising",level:1},
+{t:"ฟัน",r:"fan",e:"Teeth",c:"Body",tone:"mid",level:1},
+{t:"หัวใจ",r:"hǔa-jai",e:"Heart",c:"Body",tone:"rising",level:2},
+
+// COMMON VERBS
+{t:"กิน",r:"gin",e:"To eat",c:"Verbs",tone:"mid",level:1},
+{t:"ดื่ม",r:"dùem",e:"To drink",c:"Verbs",tone:"low",level:1},
+{t:"ไป",r:"bpai",e:"To go",c:"Verbs",tone:"mid",level:1},
+{t:"มา",r:"maa",e:"To come",c:"Verbs",tone:"mid",level:1},
+{t:"พูด",r:"phûut",e:"To speak / say",c:"Verbs",tone:"falling",level:1},
+{t:"ฟัง",r:"fang",e:"To listen",c:"Verbs",tone:"mid",level:1},
+{t:"อ่าน",r:"àan",e:"To read",c:"Verbs",tone:"low",level:1},
+{t:"เขียน",r:"khǐan",e:"To write",c:"Verbs",tone:"rising",level:1},
+{t:"นอน",r:"nawn",e:"To sleep",c:"Verbs",tone:"mid",level:1},
+{t:"ลุกขึ้น",r:"lúk-khûen",e:"To wake up / stand up",c:"Verbs",tone:"high",level:2},
+{t:"ซื้อ",r:"súe",e:"To buy",c:"Verbs",tone:"high",level:1},
+{t:"ขาย",r:"khǎai",e:"To sell",c:"Verbs",tone:"rising",level:1},
+{t:"รัก",r:"rák",e:"To love",c:"Verbs",tone:"high",level:1},
+{t:"ชอบ",r:"châwp",e:"To like",c:"Verbs",tone:"falling",level:1},
+{t:"รู้",r:"rúu",e:"To know",c:"Verbs",tone:"high",level:1},
+{t:"เข้าใจ",r:"khâo-jai",e:"To understand",c:"Verbs",tone:"falling",level:1},
+{t:"ช่วย",r:"chûai",e:"To help",c:"Verbs",tone:"falling",level:1},
+{t:"หยุด",r:"yùt",e:"To stop",c:"Verbs",tone:"low",level:1},
+{t:"ดู",r:"duu",e:"To watch / look",c:"Verbs",tone:"mid",level:1},
+{t:"ถาม",r:"thǎam",e:"To ask",c:"Verbs",tone:"rising",level:1},
+{t:"ตอบ",r:"tàwp",e:"To answer",c:"Verbs",tone:"low",level:2},
+{t:"ทำ",r:"tham",e:"To do / make",c:"Verbs",tone:"mid",level:1},
+{t:"ต้องการ",r:"tâwng-gaan",e:"To want / need",c:"Verbs",tone:"falling",level:1},
+{t:"สามารถ",r:"sǎa-mâat",e:"Can / To be able to",c:"Verbs",tone:"rising",level:2},
+{t:"อยาก",r:"yàak",e:"To want (desire)",c:"Verbs",tone:"low",level:1},
+{t:"เดิน",r:"dəən",e:"To walk",c:"Verbs",tone:"mid",level:1},
+{t:"วิ่ง",r:"wîng",e:"To run",c:"Verbs",tone:"falling",level:1},
+{t:"นั่ง",r:"nâng",e:"To sit",c:"Verbs",tone:"falling",level:1},
+{t:"ยืน",r:"yuen",e:"To stand",c:"Verbs",tone:"mid",level:2},
+{t:"เล่น",r:"lên",e:"To play",c:"Verbs",tone:"falling",level:1},
+{t:"ทำงาน",r:"tham-ngaan",e:"To work",c:"Verbs",tone:"mid",level:1},
+{t:"เรียน",r:"rian",e:"To study / learn",c:"Verbs",tone:"mid",level:1},
+{t:"สอน",r:"sǎwn",e:"To teach",c:"Verbs",tone:"rising",level:1},
+
+// ADJECTIVES
+{t:"ดี",r:"dii",e:"Good",c:"Adjectives",tone:"mid",level:1},
+{t:"ไม่ดี",r:"mâi-dii",e:"Bad / Not good",c:"Adjectives",tone:"falling",level:1},
+{t:"ใหญ่",r:"yài",e:"Big / Large",c:"Adjectives",tone:"low",level:1},
+{t:"เล็ก",r:"lék",e:"Small",c:"Adjectives",tone:"high",level:1},
+{t:"ร้อน",r:"rón",e:"Hot",c:"Adjectives",tone:"high",level:1},
+{t:"เย็น",r:"yen",e:"Cold / Cool",c:"Adjectives",tone:"mid",level:1},
+{t:"เร็ว",r:"reo",e:"Fast",c:"Adjectives",tone:"mid",level:1},
+{t:"ช้า",r:"cháa",e:"Slow",c:"Adjectives",tone:"high",level:1},
+{t:"สวย",r:"sǔai",e:"Beautiful",c:"Adjectives",tone:"rising",level:1},
+{t:"หล่อ",r:"làw",e:"Handsome",c:"Adjectives",tone:"low",level:1},
+{t:"แพง",r:"phaeng",e:"Expensive",c:"Adjectives",tone:"mid",level:1},
+{t:"ถูก",r:"thùuk",e:"Cheap / Correct",c:"Adjectives",tone:"low",level:1},
+{t:"อร่อย",r:"à-ròi",e:"Delicious",c:"Adjectives",tone:"mixed",level:1},
+{t:"หิว",r:"hǐu",e:"Hungry",c:"Adjectives",tone:"rising",level:1},
+{t:"อิ่ม",r:"ìm",e:"Full (after eating)",c:"Adjectives",tone:"low",level:1},
+{t:"เหนื่อย",r:"nùeai",e:"Tired",c:"Adjectives",tone:"low",level:1},
+{t:"มีความสุข",r:"mii-khwaam-sùk",e:"Happy",c:"Adjectives",tone:"low",level:1},
+{t:"เศร้า",r:"sâo",e:"Sad",c:"Adjectives",tone:"falling",level:1},
+{t:"โกรธ",r:"gròot",e:"Angry",c:"Adjectives",tone:"low",level:2},
+{t:"กลัว",r:"glua",e:"Scared / Afraid",c:"Adjectives",tone:"mid",level:1},
+{t:"ยาก",r:"yâak",e:"Difficult",c:"Adjectives",tone:"falling",level:1},
+{t:"ง่าย",r:"ngâai",e:"Easy",c:"Adjectives",tone:"falling",level:1},
+{t:"สำคัญ",r:"sǎm-khan",e:"Important",c:"Adjectives",tone:"rising",level:2},
+{t:"สะอาด",r:"sà-àat",e:"Clean",c:"Adjectives",tone:"low",level:2},
+
+// SHOPPING
+{t:"เท่าไหร่",r:"thâo-rài",e:"How much?",c:"Shopping",tone:"falling",level:1},
+{t:"ราคา",r:"raa-khaa",e:"Price",c:"Shopping",tone:"mid",level:1},
+{t:"บาท",r:"bàat",e:"Baht (Thai currency)",c:"Shopping",tone:"low",level:1},
+{t:"ลด",r:"lót",e:"Discount / Reduce",c:"Shopping",tone:"high",level:1},
+{t:"แพงเกิน",r:"phaeng-gəən",e:"Too expensive",c:"Shopping",tone:"mid",level:2},
+{t:"ถูกกว่า",r:"thùuk-gwàa",e:"Cheaper",c:"Shopping",tone:"low",level:2},
+{t:"ชอบ",r:"châwp",e:"I like it",c:"Shopping",tone:"falling",level:1},
+{t:"ไม่ชอบ",r:"mâi-châwp",e:"I don't like it",c:"Shopping",tone:"falling",level:1},
+{t:"เอา",r:"ao",e:"To take / want",c:"Shopping",tone:"mid",level:1},
+{t:"จ่าย",r:"jàai",e:"To pay",c:"Shopping",tone:"low",level:1},
+{t:"เงิน",r:"ngəən",e:"Money",c:"Shopping",tone:"mid",level:1},
+{t:"บิล",r:"bin",e:"Bill / Check",c:"Shopping",tone:"mid",level:1},
+
+// HEALTH
+{t:"เจ็บ",r:"jèp",e:"Hurt / Pain",c:"Health",tone:"low",level:1},
+{t:"ไม่สบาย",r:"mâi-sà-baai",e:"Not well / Sick",c:"Health",tone:"falling",level:1},
+{t:"หมอ",r:"mǎw",e:"Doctor",c:"Health",tone:"rising",level:1},
+{t:"ยา",r:"yaa",e:"Medicine",c:"Health",tone:"mid",level:1},
+{t:"โรงพยาบาล",r:"roong-phá-yaa-baan",e:"Hospital",c:"Health",tone:"mid",level:1},
+{t:"ไข้",r:"khâi",e:"Fever",c:"Health",tone:"falling",level:1},
+{t:"ปวดหัว",r:"bpùat-hǔa",e:"Headache",c:"Health",tone:"low",level:1},
+{t:"ท้องเสีย",r:"tháwng-sǐa",e:"Diarrhea",c:"Health",tone:"rising",level:2},
+{t:"แพ้",r:"pháe",e:"Allergic to / Lose",c:"Health",tone:"high",level:2},
+
+// NATURE
+{t:"ดอกไม้",r:"dàwk-máai",e:"Flower",c:"Nature",tone:"low",level:1},
+{t:"ต้นไม้",r:"dtôn-máai",e:"Tree",c:"Nature",tone:"falling",level:1},
+{t:"น้ำ",r:"nám",e:"Water",c:"Nature",tone:"high",level:1},
+{t:"ทะเล",r:"thá-lee",e:"Sea / Ocean",c:"Nature",tone:"mid",level:1},
+{t:"ภูเขา",r:"phuu-khǎo",e:"Mountain",c:"Nature",tone:"rising",level:1},
+{t:"แม่น้ำ",r:"mâe-nám",e:"River",c:"Nature",tone:"falling",level:1},
+{t:"ฝน",r:"fǒn",e:"Rain",c:"Nature",tone:"rising",level:1},
+{t:"แดด",r:"dàet",e:"Sunshine",c:"Nature",tone:"low",level:1},
+{t:"ลม",r:"lom",e:"Wind",c:"Nature",tone:"mid",level:1},
+{t:"ท้องฟ้า",r:"tháwng-fáa",e:"Sky",c:"Nature",tone:"rising",level:1},
+{t:"ดาว",r:"daao",e:"Star",c:"Nature",tone:"mid",level:1},
+{t:"พระจันทร์",r:"phrá-jan",e:"Moon",c:"Nature",tone:"mid",level:1},
+{t:"พระอาทิตย์",r:"phrá-aa-thít",e:"Sun",c:"Nature",tone:"high",level:1},
+
+// ANIMALS
+{t:"หมา",r:"mǎa",e:"Dog",c:"Animals",tone:"rising",level:1},
+{t:"แมว",r:"maeo",e:"Cat",c:"Animals",tone:"mid",level:1},
+{t:"ช้าง",r:"cháang",e:"Elephant",c:"Animals",tone:"high",level:1},
+{t:"เสือ",r:"sǔea",e:"Tiger",c:"Animals",tone:"rising",level:1},
+{t:"นก",r:"nók",e:"Bird",c:"Animals",tone:"high",level:1},
+{t:"ปลา",r:"bplaa",e:"Fish",c:"Animals",tone:"mid",level:1},
+{t:"งู",r:"nguu",e:"Snake",c:"Animals",tone:"mid",level:1},
+{t:"ลิง",r:"ling",e:"Monkey",c:"Animals",tone:"mid",level:1},
+{t:"วัว",r:"wua",e:"Cow",c:"Animals",tone:"mid",level:1},
+{t:"หมู",r:"mǔu",e:"Pig",c:"Animals",tone:"rising",level:1},
+{t:"ไก่",r:"gài",e:"Chicken",c:"Animals",tone:"low",level:1},
+{t:"กระต่าย",r:"grà-dtàai",e:"Rabbit",c:"Animals",tone:"low",level:1},
+
+// USEFUL PHRASES
+{t:"ไม่เข้าใจ",r:"mâi-khâo-jai",e:"I don't understand",c:"Phrases",tone:"falling",level:1},
+{t:"พูดซ้ำได้ไหม",r:"phûut-sám-dâai-mǎi",e:"Can you repeat?",c:"Phrases",tone:"mixed",level:2},
+{t:"พูดช้าๆ ได้ไหม",r:"phûut-cháa-cháa-dâai-mǎi",e:"Can you speak slowly?",c:"Phrases",tone:"mixed",level:2},
+{t:"ภาษาอังกฤษ",r:"phaa-sǎa-ang-grìt",e:"English language",c:"Phrases",tone:"rising",level:1},
+{t:"ภาษาไทย",r:"phaa-sǎa-thai",e:"Thai language",c:"Phrases",tone:"rising",level:1},
+{t:"ฉันชื่อ",r:"chǎn-chûe",e:"My name is...",c:"Phrases",tone:"rising",level:1},
+{t:"คุณชื่ออะไร",r:"khun-chûe-à-rai",e:"What's your name?",c:"Phrases",tone:"falling",level:1},
+{t:"ยินดีต้อนรับ",r:"yin-dii-tâwn-ráp",e:"Welcome",c:"Phrases",tone:"mixed",level:2},
+{t:"โชคดี",r:"chôok-dii",e:"Good luck",c:"Phrases",tone:"falling",level:1},
+{t:"แล้วเจอกัน",r:"láeo-jəə-gan",e:"See you later",c:"Phrases",tone:"mixed",level:1},
+{t:"ราตรีสวัสดิ์",r:"raa-dtrii-sà-wàt",e:"Good night",c:"Phrases",tone:"mid",level:2},
+{t:"อรุณสวัสดิ์",r:"à-run-sà-wàt",e:"Good morning",c:"Phrases",tone:"mixed",level:2},
+{t:"ไม่รู้",r:"mâi-rúu",e:"I don't know",c:"Phrases",tone:"high",level:1},
+{t:"หิวข้าว",r:"hǐu-khâao",e:"I'm hungry",c:"Phrases",tone:"rising",level:1},
+{t:"น้ำหนักเท่าไหร่",r:"nám-nàk-thâo-rài",e:"How much does it weigh?",c:"Phrases",tone:"falling",level:3},
+
+// EMOTIONS
+{t:"รัก",r:"rák",e:"Love",c:"Emotions",tone:"high",level:1},
+{t:"ดีใจ",r:"dii-jai",e:"Happy / Glad",c:"Emotions",tone:"mid",level:1},
+{t:"เสียใจ",r:"sǐa-jai",e:"Sorry / Sad",c:"Emotions",tone:"rising",level:1},
+{t:"ตกใจ",r:"dtòk-jai",e:"Shocked / Surprised",c:"Emotions",tone:"low",level:1},
+{t:"กังวล",r:"gang-won",e:"Worried",c:"Emotions",tone:"mid",level:2},
+{t:"ประหลาดใจ",r:"bprà-làat-jai",e:"Surprised",c:"Emotions",tone:"low",level:2},
+{t:"ตื่นเต้น",r:"tùen-dtên",e:"Excited",c:"Emotions",tone:"low",level:1},
+{t:"เบื่อ",r:"bùea",e:"Bored",c:"Emotions",tone:"low",level:1},
+{t:"อาย",r:"aai",e:"Shy / Embarrassed",c:"Emotions",tone:"mid",level:2},
+
+// PRONONS & QUESTION WORDS
+{t:"ฉัน",r:"chǎn",e:"I / Me (female)",c:"Pronouns",tone:"rising",level:1},
+{t:"ผม",r:"phǒm",e:"I / Me (male)",c:"Pronouns",tone:"rising",level:1},
+{t:"เรา",r:"rao",e:"We / Us / I (informal)",c:"Pronouns",tone:"mid",level:1},
+{t:"คุณ",r:"khun",e:"You",c:"Pronouns",tone:"mid",level:1},
+{t:"เขา",r:"khǎo",e:"He / She / They",c:"Pronouns",tone:"rising",level:1},
+{t:"พวกเขา",r:"phûak-khǎo",e:"They / Them",c:"Pronouns",tone:"rising",level:2},
+{t:"อะไร",r:"à-rai",e:"What?",c:"Pronouns",tone:"low",level:1},
+{t:"ที่ไหน",r:"thîi-nǎi",e:"Where?",c:"Pronouns",tone:"rising",level:1},
+{t:"เมื่อไหร่",r:"mûea-rài",e:"When?",c:"Pronouns",tone:"falling",level:1},
+{t:"ทำไม",r:"tham-mai",e:"Why?",c:"Pronouns",tone:"mid",level:1},
+{t:"อย่างไร",r:"yàang-rai",e:"How?",c:"Pronouns",tone:"low",level:2},
+{t:"ใคร",r:"khrai",e:"Who?",c:"Pronouns",tone:"mid",level:1},
+{t:"เท่าไหร่",r:"thâo-rài",e:"How much / many?",c:"Pronouns",tone:"falling",level:1},
+];
+
+// ============================================================
+// THAI CONSONANTS DATABASE
+// ============================================================
+const CONSONANTS = [
+  {t:"ก",r:"k",e:"chicken (gaw gai)",cls:"mid",ex:"ไก่"},
+  {t:"ข",r:"kh",e:"egg (khǎw khai)",cls:"high",ex:"ไข่"},
+  {t:"ค",r:"kh",e:"water buffalo (khaw khwai)",cls:"low",ex:"ควาย"},
+  {t:"ง",r:"ng",e:"snake (ngaw nguu)",cls:"low",ex:"งู"},
+  {t:"จ",r:"j",e:"plate (jaw jaan)",cls:"mid",ex:"จาน"},
+  {t:"ช",r:"ch",e:"elephant (chaw chaang)",cls:"low",ex:"ช้าง"},
+  {t:"ซ",r:"s",e:"chain (saw so)",cls:"low",ex:"โซ่"},
+  {t:"ญ",r:"y",e:"woman (yaw ying)",cls:"low",ex:"หญิง"},
+  {t:"ด",r:"d",e:"child (daw dek)",cls:"mid",ex:"เด็ก"},
+  {t:"ต",r:"t",e:"turtle (taw tao)",cls:"mid",ex:"เต่า"},
+  {t:"ถ",r:"th",e:"bag (thǎw thǔng)",cls:"high",ex:"ถุง"},
+  {t:"ท",r:"th",e:"soldier (thaw tháhaan)",cls:"low",ex:"ทหาร"},
+  {t:"น",r:"n",e:"mouse (naw nuu)",cls:"low",ex:"หนู"},
+  {t:"บ",r:"b",e:"leaf (baw bai máai)",cls:"mid",ex:"ใบไม้"},
+  {t:"ป",r:"p",e:"fish (bpaw bplaa)",cls:"mid",ex:"ปลา"},
+  {t:"ผ",r:"ph",e:"bee (phǎw phûeng)",cls:"high",ex:"ผึ้ง"},
+  {t:"ฝ",r:"f",e:"lid (fǎw fǎa)",cls:"high",ex:"ฝา"},
+  {t:"พ",r:"ph",e:"tray (phaw phaan)",cls:"low",ex:"พาน"},
+  {t:"ฟ",r:"f",e:"teeth (faw fan)",cls:"low",ex:"ฟัน"},
+  {t:"ม",r:"m",e:"horse (maw máa)",cls:"low",ex:"ม้า"},
+  {t:"ย",r:"y",e:"giant (yaw yák)",cls:"low",ex:"ยักษ์"},
+  {t:"ร",r:"r",e:"boat (raw ruea)",cls:"low",ex:"เรือ"},
+  {t:"ล",r:"l",e:"monkey (law ling)",cls:"low",ex:"ลิง"},
+  {t:"ว",r:"w",e:"ring (waw waen)",cls:"low",ex:"แหวน"},
+  {t:"ส",r:"s",e:"tiger (sǎw sǔa)",cls:"high",ex:"เสือ"},
+  {t:"ห",r:"h",e:"box (hǎw hìip)",cls:"high",ex:"หีบ"},
+  {t:"อ",r:"'",e:"basin (aw àang)",cls:"mid",ex:"อ่าง"},
+  {t:"ฮ",r:"h",e:"owl (haw nók hûuk)",cls:"low",ex:"นกฮูก"},
+  {t:"ฉ",r:"ch",e:"cymbals (chǎw ching)",cls:"high",ex:"ฉิ่ง"},
+  {t:"ฌ",r:"ch",e:"tree (chaw chəə)",cls:"low",ex:"เฌอ"},
+  {t:"ณ",r:"n",e:"hermit (naw nen)",cls:"low",ex:"เณร"},
+  {t:"ฑ",r:"th",e:"base (thaw monthó)",cls:"low",ex:"มณโฑ"},
+  {t:"ฒ",r:"th",e:"elder (thaw phûu-thâo)",cls:"low",ex:"ผู้เฒ่า"},
+  {t:"ธ",r:"th",e:"flag (thaw thong)",cls:"low",ex:"ธง"},
+  {t:"ภ",r:"ph",e:"mountain (phaw phuu-khǎo)",cls:"low",ex:"ภูเขา"},
+  {t:"ศ",r:"s",e:"pavilion (sǎw sǎa-laa)",cls:"high",ex:"ศาลา"},
+  {t:"ษ",r:"s",e:"hermit (sǎw rǔesii)",cls:"high",ex:"ฤๅษี"},
+  {t:"ฆ",r:"kh",e:"bell (khaw rá-kháng)",cls:"low",ex:"ระฆัง"},
+  {t:"ฐ",r:"th",e:"base (thǎw thǎan)",cls:"high",ex:"ฐาน"},
+  {t:"ห",r:"h",e:"box (hǎw hìip)",cls:"high",ex:"หีบ"},
+  {t:"ฬ",r:"l",e:"kite (law jù-laa)",cls:"low",ex:"จุฬา"},
+  {t:"ฏ",r:"t",e:"stage (dtaw bpà-dtàk)",cls:"mid",ex:"ปฏัก"},
+  {t:"ฎ",r:"d",e:"dagger (daw gà-daa)",cls:"mid",ex:"กฎา"},
+  {t:"ซ",r:"s",e:"chain (saw so)",cls:"low",ex:"โซ่"},
+];
+
+const VOWELS = [
+  {t:"า",r:"aa",e:"long a",ex:"กา"},
+  {t:"ิ",r:"i",e:"short i",ex:"กิน"},
+  {t:"ี",r:"ii",e:"long i",ex:"กี"},
+  {t:"ึ",r:"ue",e:"short ue",ex:"กึ"},
+  {t:"ื",r:"uue",e:"long uue",ex:"กือ"},
+  {t:"ุ",r:"u",e:"short u",ex:"กุ"},
+  {t:"ู",r:"uu",e:"long u",ex:"กู"},
+  {t:"เ",r:"e",e:"long e",ex:"เก"},
+  {t:"แ",r:"ae",e:"long ae",ex:"แก"},
+  {t:"โ",r:"o",e:"long o",ex:"โก"},
+  {t:"ใ/ไ",r:"ai",e:"ai sound",ex:"ใจ/ไก่"},
+  {t:"เา",r:"ao",e:"ao sound",ex:"เกา"},
+  {t:"็",r:"(short)",e:"short vowel marker",ex:"เก็บ"},
+  {t:"อ",r:"'o",e:"mid vowel",ex:"กอ"},
+  {t:"เอีย",r:"ia",e:"ia sound",ex:"เกีย"},
+  {t:"เือ",r:"uea",e:"uea sound",ex:"เกือ"},
+];
+
+const TONE_MARKS = [
+  {t:"สระเสียงกลาง",r:"",e:"Mid tone",symbol:"—",name:"mid",desc:"Normal, flat pitch"},
+  {t:"ไม้เอก ่",r:"mái ek",e:"Low tone",symbol:"่",name:"low",desc:"Lower than mid, falling slightly"},
+  {t:"ไม้โท ้",r:"mái tho",e:"Falling tone",symbol:"้",name:"falling",desc:"Starts high, falls sharply"},
+  {t:"ไม้ตรี ๊",r:"mái dtrii",e:"High tone",symbol:"๊",name:"high",desc:"Higher than mid, slightly rising"},
+  {t:"ไม้จัตวา ๋",r:"mái jàt-dtà-waa",e:"Rising tone",symbol:"๋",name:"rising",desc:"Starts low, rises"},
+];
+
+const THAI_NUMBERS = [
+  {t:"๐",r:"soon",e:"0"},
+  {t:"๑",r:"nueng",e:"1"},
+  {t:"๒",r:"sawng",e:"2"},
+  {t:"๓",r:"saam",e:"3"},
+  {t:"๔",r:"sii",e:"4"},
+  {t:"๕",r:"haa",e:"5"},
+  {t:"๖",r:"hok",e:"6"},
+  {t:"๗",r:"jet",e:"7"},
+  {t:"๘",r:"bpaet",e:"8"},
+  {t:"๙",r:"gao",e:"9"},
+];
+
+// ============================================================
+// STATE & SPACED REPETITION
+// ============================================================
+let state = {
+  xp: 0, streak: 0, lastStudied: null,
+  wordData: {}, // {word: {ease, interval, due, reps, lapses}}
+  quizzesDone: 0, quizCorrect: 0, quizTotal: 0,
+  recentWords: [], fcCategory: 'All', sessionXP: 0
+};
+const CATEGORIES = ['All', ...new Set(VOCAB.map(v => v.c))];
+let fcDeck = [], fcIndex = 0, fcFlipped = false, fcSessionXP = 0;
+let quizItems = [], quizIndex = 0, quizScore = 0;
+let spkIndex = 0, spkMode = 'listen', recognition = null, isListening = false;
+let activeWritingTab = 'consonants';
+let drawCanvas, drawCtx, isDrawing = false, lastX = 0, lastY = 0;
+let selectedConsonant = null;
+
+function loadState() {
+  try { const s = localStorage.getItem('thaiState'); if(s) state = {...state, ...JSON.parse(s)}; } catch(e){}
+  updateStreak();
+}
+function saveState() {
+  try { localStorage.setItem('thaiState', JSON.stringify(state)); } catch(e){}
+}
+function updateStreak() {
+  const today = new Date().toDateString();
+  if(state.lastStudied === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  if(state.lastStudied === yesterday) state.streak++;
+  else if(state.lastStudied !== today) state.streak = 1;
+  state.lastStudied = today;
+}
+
+// SM-2 algorithm
+function sm2(word, rating) {
+  const w = state.wordData[word] || {ease:2.5, interval:1, reps:0, lapses:0, due:0};
+  if(rating < 3) { w.reps=0; w.interval=1; w.lapses++; }
+  else {
+    if(w.reps===0) w.interval=1;
+    else if(w.reps===1) w.interval=6;
+    else w.interval = Math.round(w.interval * w.ease);
+    w.reps++;
+    w.ease = Math.max(1.3, w.ease + 0.1 - (5-rating)*(0.08 + (5-rating)*0.02));
+  }
+  w.due = Date.now() + w.interval*86400000;
+  state.wordData[word] = w;
+}
+function getDue(word) {
+  const w = state.wordData[word];
+  return !w || w.due <= Date.now();
+}
+function getMastery(word) {
+  const w = state.wordData[word];
+  if(!w || w.reps===0) return 0;
+  if(w.interval >= 21) return 3;
+  if(w.interval >= 7) return 2;
+  return 1;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-home') updateHomeUI();
+  if(id==='screen-progress') renderProgress();
+  if(id==='screen-writing') renderWritingContent();
+  if(id==='screen-speaking') initSpeaking();
+}
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showScreen(id);
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function updateHomeUI() {
+  const next100 = Math.ceil(state.xp/100)*100 || 100;
+  document.getElementById('home-streak').textContent = `${state.streak} day streak`;
+  document.getElementById('home-xp').textContent = `${state.xp} XP`;
+  document.getElementById('xp-fill').style.width = `${(state.xp % 100)}%`;
+  document.getElementById('stat-learned').textContent = Object.keys(state.wordData).length;
+  document.getElementById('stat-mastered').textContent = Object.values(state.wordData).filter(w=>w.interval>=7).length;
+  document.getElementById('stat-quizzes').textContent = state.quizzesDone;
+  const wrap = document.getElementById('home-cats');
+  wrap.innerHTML = CATEGORIES.map(c => `<div class="cat-pill${c===state.fcCategory?' active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+function setCat(cat) {
+  state.fcCategory = cat;
+  updateHomeUI();
+  showToast(`Category: ${cat}`);
+}
+function buildHomeCats() {
+  const wrap = document.getElementById('home-cats');
+  wrap.innerHTML = CATEGORIES.map(c => `<div class="cat-pill${c===state.fcCategory?' active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function startFlashcards() {
+  showScreen('screen-flashcards');
+  buildCatFilter();
+  buildDeck();
+  fcSessionXP = 0;
+  renderCard();
+}
+function buildCatFilter() {
+  const el = document.getElementById('fc-cat-filter');
+  el.innerHTML = CATEGORIES.map(c=>`<div class="cf-btn${c===state.fcCategory?' active':''}" onclick="selectFCCat('${c}', this)">${c}</div>`).join('');
+}
+function selectFCCat(cat, el) {
+  state.fcCategory = cat;
+  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  buildDeck();
+  renderCard();
+}
+function buildDeck() {
+  let pool = state.fcCategory==='All' ? VOCAB : VOCAB.filter(v=>v.c===state.fcCategory);
+  const due = pool.filter(w=>getDue(w.t));
+  const notDue = pool.filter(w=>!getDue(w.t));
+  shuffle(due); shuffle(notDue);
+  fcDeck = [...due, ...notDue].slice(0, 30);
+  if(fcDeck.length===0) fcDeck = [...pool]; shuffle(fcDeck);
+  fcIndex = 0;
+}
+function renderCard() {
+  const w = fcDeck[fcIndex];
+  if(!w) { showToast('Session complete! 🎉'); return; }
+  fcFlipped = false;
+  document.getElementById('fc-inner').classList.remove('flipped');
+  document.getElementById('fc-thai').textContent = w.t;
+  document.getElementById('fc-romanized').textContent = w.r;
+  document.getElementById('fc-tone').textContent = `${w.tone} tone`;
+  document.getElementById('fc-category').textContent = w.c;
+  document.getElementById('fc-thai2').textContent = w.t;
+  document.getElementById('fc-romanized2').textContent = w.r;
+  document.getElementById('fc-english').textContent = w.e;
+  document.getElementById('fc-progress').textContent = `Card ${fcIndex+1} of ${fcDeck.length}`;
+  document.getElementById('rating-row').style.display = 'none';
+  document.getElementById('tap-hint').style.display = 'block';
+  document.getElementById('fc-xp-gain').textContent = `+${fcSessionXP} XP`;
+  if(!state.recentWords.includes(w.t)) {
+    state.recentWords.unshift(w.t);
+    state.recentWords = state.recentWords.slice(0,20);
+  }
+}
+function flipCard() {
+  if(fcFlipped) return;
+  fcFlipped = true;
+  document.getElementById('fc-inner').classList.add('flipped');
+  document.getElementById('rating-row').style.display = 'flex';
+  document.getElementById('tap-hint').style.display = 'none';
+}
+function rateCard(rating) {
+  const w = fcDeck[fcIndex];
+  sm2(w.t, rating);
+  const xp = rating===5?3:rating===3?2:1;
+  fcSessionXP += xp; state.xp += xp;
+  document.getElementById('fc-xp-gain').textContent = `+${fcSessionXP} XP`;
+  fcIndex++;
+  if(fcIndex >= fcDeck.length) {
+    saveState();
+    showToast(`Done! +${fcSessionXP} XP 🎉`);
+    buildDeck(); renderCard();
+  } else {
+    renderCard();
+  }
+  saveState();
+}
+function speakThai(e) {
+  e.stopPropagation();
+  const w = fcDeck[fcIndex];
+  if(w) speakText(w.t);
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function startQuiz() {
+  showScreen('screen-quiz');
+  document.getElementById('quiz-game-area').style.display = 'flex';
+  document.getElementById('quiz-result-area').style.display = 'none';
+  let pool = state.fcCategory==='All' ? VOCAB : VOCAB.filter(v=>v.c===state.fcCategory);
+  if(pool.length < 4) pool = VOCAB;
+  quizItems = shuffle([...pool]).slice(0,10);
+  quizIndex = 0; quizScore = 0;
+  document.getElementById('quiz-score-display').textContent = '0/0';
+  showQuestion();
+}
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+function showQuestion() {
+  const q = quizItems[quizIndex];
+  const fill = ((quizIndex)/quizItems.length*100)+'%';
+  document.getElementById('quiz-prog-fill').style.width = fill;
+  document.getElementById('quiz-score-display').textContent = `${quizScore}/${quizIndex}`;
+  document.getElementById('quiz-next-btn').classList.remove('show');
+  const types = ['en-to-th','th-to-en','romanized-to-en'];
+  const type = types[Math.floor(Math.random()*types.length)];
+  document.getElementById('quiz-type-badge').textContent = type==='en-to-th'?'Thai Script':'English Meaning';
+  let wrong = shuffle([...VOCAB].filter(v=>v.t!==q.t)).slice(0,3);
+  let choices = shuffle([q,...wrong]);
+  if(type==='en-to-th') {
+    document.getElementById('quiz-question').textContent = `What is the Thai for:`;
+    document.getElementById('quiz-thai').textContent = q.e;
+    document.getElementById('quiz-choices').innerHTML = choices.map((c,i)=>
+      `<button class="choice-btn" onclick="checkAnswer(this,'${c.t}','${q.t}')">
+        <div class="choice-letter">${'ABCD'[i]}</div>${c.t} (${c.r})</button>`).join('');
+  } else {
+    document.getElementById('quiz-question').textContent = `What does this mean?`;
+    document.getElementById('quiz-thai').textContent = q.t;
+    document.getElementById('quiz-choices').innerHTML = choices.map((c,i)=>
+      `<button class="choice-btn" onclick="checkAnswer(this,'${c.e}','${q.e}')">
+        <div class="choice-letter">${'ABCD'[i]}</div>${c.e}</button>`).join('');
+  }
+}
+function checkAnswer(btn, chosen, correct) {
+  document.querySelectorAll('.choice-btn').forEach(b=>b.classList.add('disabled'));
+  if(chosen===correct) { btn.classList.add('correct'); quizScore++; }
+  else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.choice-btn').forEach(b=>{
+      if(b.textContent.includes(correct)) b.classList.add('correct');
+    });
+  }
+  document.getElementById('quiz-next-btn').classList.add('show');
+}
+function nextQuestion() {
+  quizIndex++;
+  if(quizIndex>=quizItems.length) { finishQuiz(); return; }
+  showQuestion();
+}
+function finishQuiz() {
+  state.quizzesDone++;
+  state.quizCorrect = (state.quizCorrect||0) + quizScore;
+  state.quizTotal = (state.quizTotal||0) + quizItems.length;
+  const xp = quizScore*5;
+  state.xp += xp;
+  saveState();
+  document.getElementById('quiz-game-area').style.display = 'none';
+  document.getElementById('quiz-result-area').style.display = 'flex';
+  const pct = quizScore/quizItems.length;
+  document.getElementById('result-score').textContent = `${quizScore}/${quizItems.length}`;
+  document.getElementById('result-emoji').textContent = pct>=0.9?'🏆':pct>=0.7?'⭐':pct>=0.5?'👍':'📚';
+  document.getElementById('result-label').textContent = pct>=0.9?'Excellent!':pct>=0.7?'Great job!':pct>=0.5?'Good effort!':'Keep practicing!';
+  document.getElementById('result-sub').textContent = `+${xp} XP earned`;
+}
+
+// ============================================================
+// WRITING / SCRIPT
+// ============================================================
+function setWritingTab(tab, el) {
+  activeWritingTab = tab;
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderWritingContent();
+}
+function renderWritingContent() {
+  const el = document.getElementById('writing-content');
+  if(activeWritingTab==='consonants') el.innerHTML = renderConsonants();
+  else if(activeWritingTab==='vowels') el.innerHTML = renderVowels();
+  else if(activeWritingTab==='tones') el.innerHTML = renderTones();
+  else el.innerHTML = renderNumbers();
+  setupCanvas();
+}
+function renderConsonants() {
+  return `
+    <div class="consonant-grid">${CONSONANTS.map((c,i)=>`
+      <div class="cons-card" onclick="selectConsonant(${i})">
+        <div class="ct">${c.t}</div>
+        <div class="cr">${c.r}</div>
+        <div class="cc">${c.e.split(' ')[0]}</div>
+        <span class="cclass ${c.cls}">${c.cls}</span>
+      </div>`).join('')}</div>
+    <div class="draw-section">
+      <h3>✍️ Practice Drawing</h3>
+      <p>Tap a consonant above, then draw it below</p>
+      <div class="draw-target" id="draw-target">ก</div>
+      <canvas id="drawCanvas"></canvas>
+      <div class="draw-controls">
+        <button class="draw-btn clear" onclick="clearCanvas()">🗑️ Clear</button>
+        <button class="draw-btn check" onclick="speakConsonant()">🔊 Hear</button>
+      </div>
+    </div>`;
+}
+function renderVowels() {
+  return `<div style="margin-bottom:16px"><div class="consonant-grid">${VOWELS.map(v=>`
+    <div class="cons-card" onclick="speakText('${v.ex}')">
+      <div class="ct" style="font-size:22px;padding:4px">${v.t}</div>
+      <div class="cr">${v.r}</div>
+      <div class="cc">${v.e}</div>
+      <div style="font-size:11px;color:var(--accent);margin-top:2px">${v.ex}</div>
+    </div>`).join('')}</div></div>
+    <div class="tone-section">
+      <h3>💡 Vowel Tip</h3>
+      <p style="color:var(--text2);font-size:13px;line-height:1.6">Thai vowels can appear before, after, above, or below the consonant. Short vowels generally create lower tones than long vowels. Tap any vowel to hear the example word.</p>
+    </div>`;
+}
+function renderTones() {
+  return `
+    <div class="tone-section" style="margin-bottom:16px">
+      <h3>🎵 The 5 Thai Tones</h3>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Thai is a tonal language. The same syllable with different tones has completely different meanings!</p>
+      <div class="tone-row">${TONE_MARKS.map(t=>`
+        <div class="tone-chip ${t.name}" onclick="speakText('${t.t}')">
+          <div class="tn">${t.symbol||'—'}</div>
+          <div class="tl">${t.e}</div>
+        </div>`).join('')}</div>
+    </div>
+    <div class="tone-section" style="margin-bottom:16px">
+      <h3>🗝️ Tone Rules Summary</h3>
+      <p style="color:var(--text2);font-size:12px;line-height:1.7">
+        <strong style="color:var(--text)">Mid class consonant</strong> + no mark = Mid tone<br>
+        <strong style="color:var(--text)">Low class consonant</strong> + no mark = Mid tone<br>
+        <strong style="color:var(--text)">High class consonant</strong> + no mark = Rising tone<br>
+        Tone marks override the default tone.<br>
+        ่ (mai ek): Low or falling depending on class<br>
+        ้ (mai tho): Falling or high depending on class
+      </p>
+    </div>
+    <div class="tone-section">
+      <h3>🔊 Tone Examples</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${[{t:'ป่า',r:'pàa',e:'forest (low)',n:'low'},{t:'ป้า',r:'pâa',e:'aunt (falling)',n:'falling'},{t:'ป๊า',r:'páa',e:'papa (high)',n:'high'},{t:'ป๋า',r:'pǎa',e:'papa (rising)',n:'rising'},{t:'ปา',r:'bpaa',e:'to throw (mid)',n:'mid'}].map(ex=>`
+        <div style="background:var(--card);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="speakText('${ex.t}')">
+          <span style="font-size:24px">${ex.t}</span>
+          <span style="color:var(--text2);font-size:13px">${ex.r} — ${ex.e}</span>
+          <span style="color:var(--text2)">🔊</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+function renderNumbers() {
+  return `
+    <div class="consonant-grid" style="grid-template-columns:repeat(5,1fr)">${THAI_NUMBERS.map(n=>`
+      <div class="cons-card" onclick="speakText('${n.r}')">
+        <div class="ct" style="font-size:36px">${n.t}</div>
+        <div class="cr" style="font-size:16px">${n.e}</div>
+        <div class="cc">${n.r}</div>
+      </div>`).join('')}</div>
+    <div class="tone-section" style="margin-top:16px">
+      <h3>🔢 Thai Number Examples</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${[{t:'๑๕',r:'sìp-hâa',e:'15'},{t:'๒๕',r:'yîi-sìp-hâa',e:'25'},{t:'๑๐๐',r:'rói',e:'100'},{t:'๒๕๖๗',r:'sǎwng-phan-hâa-rói-hòk-sìp-jèt',e:'2567 (Thai year)'}].map(ex=>`
+        <div style="background:var(--card);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="speakText('${ex.r}')">
+          <span style="font-size:24px">${ex.t}</span>
+          <span style="color:var(--text2);font-size:13px">${ex.e} = ${ex.r}</span>
+          <span>🔊</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function selectConsonant(i) {
+  selectedConsonant = CONSONANTS[i];
+  const target = document.getElementById('draw-target');
+  if(target) target.textContent = selectedConsonant.t;
+  document.querySelectorAll('.cons-card').forEach((c,idx)=>{
+    c.classList.toggle('active', idx===i);
+  });
+  clearCanvas();
+  speakText(selectedConsonant.ex || selectedConsonant.t);
+}
+function speakConsonant() {
+  if(selectedConsonant) speakText(selectedConsonant.ex || selectedConsonant.t);
+  else if(fcDeck[fcIndex]) speakText(fcDeck[fcIndex].t);
+}
+function setupCanvas() {
+  drawCanvas = document.getElementById('drawCanvas');
+  if(!drawCanvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = drawCanvas.getBoundingClientRect();
+  drawCanvas.width = (rect.width || drawCanvas.offsetWidth) * dpr;
+  drawCanvas.height = 200 * dpr;
+  drawCtx = drawCanvas.getContext('2d');
+  drawCtx.scale(dpr, dpr);
+  drawCtx.strokeStyle = '#F1FAEE';
+  drawCtx.lineWidth = 4;
+  drawCtx.lineCap = 'round';
+  drawCtx.lineJoin = 'round';
+  drawCanvas.addEventListener('mousedown', startDraw);
+  drawCanvas.addEventListener('mousemove', draw);
+  drawCanvas.addEventListener('mouseup', stopDraw);
+  drawCanvas.addEventListener('touchstart', e=>{e.preventDefault();startDraw(e.touches[0]);},{passive:false});
+  drawCanvas.addEventListener('touchmove', e=>{e.preventDefault();draw(e.touches[0]);},{passive:false});
+  drawCanvas.addEventListener('touchend', stopDraw);
+}
+function getPos(e) {
+  const r = drawCanvas.getBoundingClientRect();
+  return {x: e.clientX-r.left, y: e.clientY-r.top};
+}
+function startDraw(e) { isDrawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; drawCtx.beginPath(); drawCtx.moveTo(p.x,p.y); }
+function draw(e) {
+  if(!isDrawing) return;
+  const p=getPos(e);
+  drawCtx.lineTo(p.x,p.y);
+  drawCtx.stroke();
+  drawCtx.beginPath();
+  drawCtx.moveTo(p.x,p.y);
+  lastX=p.x; lastY=p.y;
+}
+function stopDraw() { isDrawing=false; }
+function clearCanvas() {
+  if(drawCtx&&drawCanvas) drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+}
+
+// ============================================================
+// SPEAKING
+// ============================================================
+let spkPool = [];
+function initSpeaking() {
+  spkPool = shuffle([...VOCAB]);
+  spkIndex = 0;
+  renderSpeakCard();
+}
+function renderSpeakCard() {
+  const w = spkPool[spkIndex];
+  if(!w) return;
+  document.getElementById('sp-thai').textContent = w.t;
+  document.getElementById('sp-romanized').textContent = w.r;
+  document.getElementById('sp-english').textContent = w.e;
+  document.getElementById('speak-result').textContent = spkMode==='listen'?'Tap 🔊 to hear':'Tap 🎙️ to speak';
+  document.getElementById('speak-result').className = 'speak-result';
+}
+function setSpeakMode(mode, el) {
+  spkMode = mode;
+  document.querySelectorAll('.smode-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const mic = document.getElementById('mic-btn');
+  if(mode==='speak'||mode==='shadowing') {
+    mic.style.display='block';
+    mic.textContent='🎙️';
+  } else {
+    mic.style.display='none';
+  }
+  renderSpeakCard();
+}
+function prevSpeakWord() { spkIndex=Math.max(0,spkIndex-1); renderSpeakCard(); }
+function nextSpeakWord() { spkIndex=Math.min(spkPool.length-1,spkIndex+1); renderSpeakCard(); }
+function speakCurrentWord() {
+  const w = spkPool[spkIndex];
+  if(w) { speakText(w.t); state.xp+=1; saveState(); }
+}
+function toggleMic() {
+  if(isListening) { stopListening(); return; }
+  if(spkMode==='shadowing') { speakCurrentWord(); setTimeout(startListening, 1500); }
+  else startListening();
+}
+function startListening() {
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    showToast('Speech recognition not supported in this browser'); return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'th-TH';
+  recognition.interimResults = false;
+  recognition.onresult = e => {
+    const said = e.results[0][0].transcript.trim();
+    const w = spkPool[spkIndex];
+    const correct = w.t.replace(/\s/g,'');
+    const match = said.replace(/\s/g,'') === correct;
+    const res = document.getElementById('speak-result');
+    res.textContent = match ? `✅ "${said}" — Correct!` : `❌ You said: "${said}"`;
+    res.className = 'speak-result ' + (match?'success':'error');
+    if(match) { state.xp+=3; saveState(); }
+    stopListening();
+  };
+  recognition.onerror = () => { stopListening(); document.getElementById('speak-result').textContent='Could not hear. Try again.'; };
+  recognition.onend = () => stopListening();
+  recognition.start();
+  isListening = true;
+  document.getElementById('mic-btn').classList.add('listening');
+  document.getElementById('speak-result').textContent = '🎙️ Listening...';
+}
+function stopListening() {
+  isListening = false;
+  if(recognition) { try{recognition.stop();}catch(e){} recognition=null; }
+  const btn = document.getElementById('mic-btn');
+  if(btn) { btn.classList.remove('listening'); btn.textContent='🎙️'; }
+}
+
+// ============================================================
+// PROGRESS SCREEN
+// ============================================================
+function renderProgress() {
+  document.getElementById('prog-words').textContent = Object.keys(state.wordData).length;
+  document.getElementById('prog-mastered').textContent = Object.values(state.wordData).filter(w=>w.interval>=7).length;
+  document.getElementById('prog-streak').textContent = state.streak;
+  document.getElementById('prog-xp').textContent = state.xp;
+  document.getElementById('prog-quizzes').textContent = state.quizzesDone;
+  const acc = state.quizTotal ? Math.round(state.quizCorrect/state.quizTotal*100) : 0;
+  document.getElementById('prog-accuracy').textContent = acc+'%';
+  const mb = document.getElementById('mastery-breakdown');
+  const total = VOCAB.length;
+  const seen = Object.keys(state.wordData).length;
+  const learning = Object.values(state.wordData).filter(w=>w.interval<7&&w.reps>0).length;
+  const mastered = Object.values(state.wordData).filter(w=>w.interval>=7).length;
+  const unseen = total - seen;
+  mb.innerHTML = [
+    {label:'Mastered',pct:mastered/total,color:'#2DC653'},
+    {label:'Learning',pct:learning/total,color:'#F4A261'},
+    {label:'Seen',pct:(seen-mastered-learning)/total,color:'#457B9D'},
+    {label:'Unseen',pct:unseen/total,color:'#444'}
+  ].map(r=>`<div class="mastery-row">
+    <div class="mastery-label">${r.label}</div>
+    <div class="mastery-bar-bg"><div class="mastery-bar-fill" style="width:${r.pct*100}%;background:${r.color}"></div></div>
+    <div class="mastery-pct">${Math.round(r.pct*100)}%</div>
+  </div>`).join('');
+  const cats = [...new Set(VOCAB.map(v=>v.c))];
+  const cp = document.getElementById('cat-progress');
+  cp.innerHTML = cats.map(cat=>{
+    const words = VOCAB.filter(v=>v.c===cat);
+    const done = words.filter(w=>state.wordData[w.t]&&state.wordData[w.t].reps>0).length;
+    const pct = Math.round(done/words.length*100);
+    return `<div class="cat-prog-row">
+      <div class="cat-prog-label">${cat}</div>
+      <div class="cat-prog-bar"><div class="cat-prog-fill" style="width:${pct}%"></div></div>
+      <div class="cat-prog-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+  const rw = document.getElementById('recent-words');
+  rw.innerHTML = state.recentWords.slice(0,15).map(w=>`<div class="recent-word">${w}</div>`).join('') || '<span style="color:var(--text2);font-size:13px">No words studied yet</span>';
+}
+
+// ============================================================
+// TTS
+// ============================================================
+function speakText(text) {
+  if(!('speechSynthesis' in window)) { showToast('Speech not supported'); return; }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'th-TH';
+  utt.rate = 0.85;
+  const voices = speechSynthesis.getVoices();
+  const thai = voices.find(v=>v.lang==='th-TH'||v.lang.startsWith('th'));
+  if(thai) utt.voice = thai;
+  speechSynthesis.speak(utt);
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+updateHomeUI();
+buildHomeCats();
+speechSynthesis.getVoices(); // preload
+window.addEventListener('load', ()=>{
+  setTimeout(()=>speechSynthesis.getVoices(), 500);
+});
+</script>
+</body>
+</html>
